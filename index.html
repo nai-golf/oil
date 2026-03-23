@@ -12,15 +12,28 @@
 
 <script>
   (function() {
-    const LOGGER_URL = 'https://script.google.com/macros/s/AKfycbxz4Ha1sPN2xy1qTNiba0-vg1KYFaq36uTuddbphGfr3DR0eX5WOagqkxPZut-Zb3eOQA/exec'; // URL จาก Step 1
-    fetch(LOGGER_URL + '?action=log' +
-      '&ref=' + encodeURIComponent(document.referrer) +
-      '&ua=' + encodeURIComponent(navigator.userAgent) +
-      '&lang=' + encodeURIComponent(navigator.language) +
-      '&screen=' + encodeURIComponent(screen.width + 'x' + screen.height) +
-      '&tz=' + encodeURIComponent(Intl.DateTimeFormat().resolvedOptions().timeZone),
-      { mode: 'no-cors' }
-    );
+    const LOGGER_URL = 'https://script.google.com/macros/s/AKfycbxz4Ha1sPN2xy1qTNiba0-vg1KYFaq36uTuddbphGfr3DR0eX5WOagqkxPZut-Zb3eOQA/exec';
+    
+    // นับ returning visitor
+    const visitCount = parseInt(localStorage.getItem('vc') || '0') + 1;
+    localStorage.setItem('vc', visitCount);
+    const visitorType = visitCount > 1 ? 'returning' : 'new';
+
+    // ดึง IP ก่อน แล้วค่อย log
+    fetch('https://api.ipify.org?format=json')
+      .then(r => r.json())
+      .then(ipData => {
+        fetch(LOGGER_URL + '?action=log' +
+          '&ref=' + encodeURIComponent(document.referrer) +
+          '&ua=' + encodeURIComponent(navigator.userAgent) +
+          '&lang=' + encodeURIComponent(navigator.language) +
+          '&screen=' + encodeURIComponent(screen.width + 'x' + screen.height) +
+          '&tz=' + encodeURIComponent(Intl.DateTimeFormat().resolvedOptions().timeZone) +
+          '&visitor=' + visitorType +
+          '&ip=' + encodeURIComponent(ipData.ip),
+          { mode: 'no-cors' }
+        );
+      });
   })();
 </script>
 
